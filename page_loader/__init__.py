@@ -16,7 +16,7 @@ def url_to_filename(url):
 
 
 def download(url, dir):
-    filename = url_to_filename(url)
+    filename = url_to_filename(url) + '.html'
     filepath = os.path.join(dir, filename)
 
     res = requests.get(url)

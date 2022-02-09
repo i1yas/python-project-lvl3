@@ -16,7 +16,7 @@ def test_page_loader(requests_mock):
         open(expected_path) as expected_file
     ):
         url = 'https://test.com/file'
-        filename = 'test-com-file'
+        filename = 'test-com-file.html'
         expected = expected_file.read()
 
         requests_mock.get(url, text=expected)
