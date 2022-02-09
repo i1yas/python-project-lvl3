@@ -7,8 +7,12 @@ packages = [
     { include = "page_loader" },
 ]
 
+[tool.poetry.scripts]
+download = "page_loader.scripts.download:main"
+
 [tool.poetry.dependencies]
 python = "^3.9"
+argparse = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"

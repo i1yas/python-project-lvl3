@@ -15,7 +15,7 @@ def url_to_filename(url):
     return filename
 
 
-def download(url, dir=os.getcwd()):
+def download(url, dir):
     filename = url_to_filename(url)
     filepath = os.path.join(dir, filename)
 
