@@ -23,3 +23,5 @@ def download(url, dir):
 
     with open(filepath, 'w') as f:
         f.write(res.text)
+
+    return filepath

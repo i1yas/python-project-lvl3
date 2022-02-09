@@ -12,10 +12,11 @@ def main():
                         help='location for downloaded file')
 
     args = parser.parse_args()
-    download(
+    filepath = download(
         args.url,
         args.OUTPUT or os.getcwd()
     )
+    print(filepath)
 
 
 if __name__ == '__main__':
