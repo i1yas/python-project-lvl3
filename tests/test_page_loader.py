@@ -11,7 +11,10 @@ def get_fixture_path(name):
 def test_page_loader(requests_mock):
     expected_path = get_fixture_path('expected.html')
 
-    with tempfile.TemporaryDirectory() as tmpdirname, open(expected_path) as expected_file:
+    with (
+        tempfile.TemporaryDirectory() as tmpdirname,
+        open(expected_path) as expected_file
+    ):
         url = 'https://test.com/file'
         filename = 'test-com-file'
         expected = expected_file.read()
