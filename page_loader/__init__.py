@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 
 
 def get_default_logger():
-    logger = logging.getLogger('default_logger')
+    Logger = logging.getLoggerClass()
+    logger = Logger('default_logger')
 
     logger.setLevel('DEBUG')
 
@@ -27,8 +28,8 @@ class HTTPResponseException(Exception):
     def __init__(self, response, path):
         self.response = response
         self.path = path
-        message = self.get_message()
-        super().__init__(message)
+        self.message = self.get_message()
+        super().__init__(self.message)
 
     def get_message(self):
         code = self.response.status_code
