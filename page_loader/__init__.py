@@ -20,6 +20,10 @@ def url_to_filename(url):
     return filename
 
 
+def is_local_path(path):
+    return path.startswith('/')
+
+
 def save_binary(url, path):
     res = requests.get(url, stream=True)
     with open(path, 'wb') as f:
@@ -37,24 +41,41 @@ def download(url, dir):
     res = requests.get(url)
     content = res.text
     soup = parse(content)
-    images = soup.find_all("img")
     files_dirname = f'{basename}_files'
     files_dirpath = os.path.join(dir, files_dirname)
 
-    if len(images) > 0:
+    elements_to_load = []
+
+    elements_to_load.extend(
+        ('src', img) for img in soup.find_all('img')
+    )
+    elements_to_load.extend(
+        ('href', link) for link in soup.find_all('link')
+        if link.get('href')
+    )
+    elements_to_load.extend(
+        ('src', script) for script in soup.find_all('script')
+        if script.get('src')
+    )
+
+    if len(elements_to_load) > 0:
         os.mkdir(files_dirpath)
 
-    for img in images:
-        old_src = img['src']
-        img_url = urlparse(old_src)
-        _, filename = os.path.split(img_url.path)
-        new_src = os.path.join(files_dirname, filename)
-        img['src'] = new_src
+    for (key, element) in elements_to_load:
+        old_path = element[key]
 
-        img_path = os.path.join(dir, new_src)
+        if not is_local_path(old_path):
+            continue
+
+        element_url = urlparse(old_path)
+        _, filename = os.path.split(element_url.path)
+        new_path = os.path.join(files_dirname, filename)
+        element[key] = new_path
+
+        local_path = os.path.join(dir, new_path)
         save_binary(
-            url=urljoin(base_url, old_src),
-            path=img_path
+            url=urljoin(base_url, old_path),
+            path=local_path
         )
 
     with open(filepath, 'w') as f:
