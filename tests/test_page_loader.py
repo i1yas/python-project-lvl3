@@ -21,10 +21,20 @@ def setup(requests_mock):
 
     with open(file_path) as original_file:
         original = original_file.read()
-
         requests_mock.get(url, text=original)
-        requests_mock.get('https://test.com/files/picture.jpg', text='jpg file')
-        requests_mock.get('https://test.com/files/picture.png', text='png file')
+
+    files_to_mock = [
+        ('picture.jpg', 'jpg picture'),
+        ('picture.png', 'png picture'),
+        ('style.css', 'css file'),
+        ('script.js', 'console.log("test")')
+    ]
+
+    for filename, content in files_to_mock:
+        requests_mock.get(
+            f'https://test.com/files/{filename}',
+            text=content
+        )
     yield
 
 
@@ -43,7 +53,7 @@ def test_page_loaded():
             assert expected == actual
 
 
-def test_paths_changed():
+def test_local_paths_changed():
     with tempfile.TemporaryDirectory() as tmpdirname:
         result_path = download(url, tmpdirname)
 
@@ -51,6 +61,8 @@ def test_paths_changed():
             actual = result_file.read()
             assert '"test-com-document_files/picture.jpg"' in actual
             assert '"test-com-document_files/picture.png"' in actual
+            assert '"test-com-document_files/script.js"' in actual
+            assert '"test-com-document_files/style.css"' in actual
 
 
 def test_files_loaded():
@@ -58,4 +70,9 @@ def test_files_loaded():
         download(url, tmpdirname)
 
         dirpath = os.path.join(tmpdirname, files_dirname)
-        assert set(["picture.jpg", "picture.png"]) == set(os.listdir(dirpath))
+        assert set([
+            "picture.jpg",
+            "picture.png",
+            "script.js",
+            "style.css",
+        ]) == set(os.listdir(dirpath))
