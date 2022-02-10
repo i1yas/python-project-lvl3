@@ -1,7 +1,12 @@
 import os
 from urllib.parse import urlparse, urljoin
 import requests
+import logging
 from bs4 import BeautifulSoup
+
+
+Logger = logging.getLoggerClass()
+default_logger = Logger(name='default_logger', level=logging.DEBUG)
 
 
 def parse(file_or_content):
@@ -32,7 +37,7 @@ def save_binary(url, path):
                 f.write(chunk)
 
 
-def download(url, dir):
+def download(url, dir, logger=default_logger):
     basename = url_to_filename(url)
     base_url, _ = os.path.split(url)
     filename = basename + '.html'
@@ -41,6 +46,8 @@ def download(url, dir):
     res = requests.get(url)
     content = res.text
     soup = parse(content)
+    logger.info(f'File {filename} parsed')
+
     files_dirname = f'{basename}_files'
     files_dirpath = os.path.join(dir, files_dirname)
 
@@ -60,6 +67,8 @@ def download(url, dir):
 
     if len(elements_to_load) > 0:
         os.mkdir(files_dirpath)
+    else:
+        logger.warning(f'Found no resources to download in {url}')
 
     for (key, element) in elements_to_load:
         old_path = element[key]
@@ -77,6 +86,7 @@ def download(url, dir):
             url=urljoin(base_url, old_path),
             path=local_path
         )
+        logger.info(f'Loaded resource {old_path}')
 
     with open(filepath, 'w') as f:
         f.write(soup.prettify())
