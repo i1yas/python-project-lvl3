@@ -1,7 +1,7 @@
 install:
 	poetry install
 
-package-install:
+package-install: build
 	python3.9 -m pip install --user dist/*.whl --force-reinstall
 	
 build:
