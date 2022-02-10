@@ -6,7 +6,9 @@ from page_loader import download, get_default_logger, HTTPResponseException
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate diff")
+    parser = argparse.ArgumentParser(
+        description="Downloads page with resources"
+    )
 
     parser.add_argument('url', type=str)
     parser.add_argument('--output', dest='OUTPUT', type=str,
