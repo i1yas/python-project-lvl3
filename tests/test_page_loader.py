@@ -2,7 +2,7 @@ import os
 import tempfile
 import pytest
 
-from page_loader import download
+from page_loader import download, HTTPResponseException
 
 
 def get_fixture_path(name):
@@ -76,3 +76,44 @@ def test_files_loaded():
             "script.js",
             "style.css",
         ]) == set(os.listdir(dirpath))
+
+
+def test_bad_path():
+    with pytest.raises(FileNotFoundError):
+        download(url, '/undefined')
+
+
+def test_bad_filemod():
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        os.chmod(tmpdirname, 111)
+        with pytest.raises(PermissionError):
+            download(url, tmpdirname)
+
+
+def test_bad_http_request(requests_mock):
+    requests_mock.get('http://401.com', status_code=401)
+    requests_mock.get('http://404.com', status_code=404)
+    requests_mock.get('http://5xx.com', status_code=501)
+    requests_mock.get('https://test.com/files/picture.jpg', status_code=404)
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        with pytest.raises(HTTPResponseException) as e:
+            download('http://401.com', tmpdirname)
+        assert 'Authorization needed for http://401.com' == str(e.value)
+
+        with pytest.raises(HTTPResponseException) as e:
+            download('http://404.com', tmpdirname)
+        assert 'Not found http://404.com' == str(e.value)
+
+        with pytest.raises(HTTPResponseException) as e:
+            download('http://5xx.com', tmpdirname)
+        assert 'Server can\'t handle request to http://5xx.com' == str(e.value)
+
+        with pytest.raises(HTTPResponseException) as e:
+            download(url, tmpdirname)
+        resourse_path = os.path.join(
+            tmpdirname,
+            'test-com-document_files',
+            'picture.jpg'
+        )
+        assert f'Not found {resourse_path}' == str(e.value)
