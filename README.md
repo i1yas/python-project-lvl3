@@ -10,9 +10,8 @@ make build # build executable
 make package-install # add executable
 download --output DIR https://yourdomain.com/some/path
 ```
+[![asciicast](https://asciinema.org/a/LgCPwGboK2XmC5ipBYs5OMtjE.svg)](https://asciinema.org/a/LgCPwGboK2XmC5ipBYs5OMtjE)
+
 
 ## Usage
-[![asciicast](https://asciinema.org/a/6wcvtZsWXhX4olUh2ScUPLS6c.svg)](https://asciinema.org/a/6wcvtZsWXhX4olUh2ScUPLS6c)
-
-Logging and error reporting
 [![asciicast](https://asciinema.org/a/ZJifIEdqpo8blWxZUXO79LsYV.svg)](https://asciinema.org/a/ZJifIEdqpo8blWxZUXO79LsYV)
