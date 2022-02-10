@@ -1,12 +1,60 @@
 import os
+import sys
 from urllib.parse import urlparse, urljoin
 import requests
 import logging
 from bs4 import BeautifulSoup
 
 
-Logger = logging.getLoggerClass()
-default_logger = Logger(name='default_logger', level=logging.DEBUG)
+def get_default_logger():
+    logger = logging.getLogger('default_logger')
+
+    logger.setLevel('DEBUG')
+
+    handler = logging.StreamHandler(sys.stderr)
+    log_format = '%(name)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter(log_format)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger
+
+
+default_logger = get_default_logger()
+
+
+class HTTPResponseException(Exception):
+    def __init__(self, response, path):
+        self.response = response
+        self.path = path
+        message = self.get_message()
+        super().__init__(message)
+
+    def get_message(self):
+        code = self.response.status_code
+        path = self.path
+
+        mapping = {
+            401: f'Authorization needed for {path}',
+            403: f'Access to {path} is forbidden',
+            404: f'Not found {path}',
+            '3xx': f'Redirect on {path}',
+            '4xx': f'Wrong request to {path}',
+            '5xx': f'Server can\'t handle request to {path}'
+        }
+
+        known_error = mapping.get(code)
+
+        if known_error:
+            return known_error
+        if code < 400:
+            return mapping['3xx']
+        if code < 500:
+            return mapping['4xx']
+        if code >= 500:
+            return mapping['5xx']
+
+        return f'Unknown http error code {code}'
 
 
 def parse(file_or_content):
@@ -31,6 +79,10 @@ def is_local_path(path):
 
 def save_binary(url, path):
     res = requests.get(url, stream=True)
+
+    if res.status_code >= 300:
+        raise HTTPResponseException(res, path)
+
     with open(path, 'wb') as f:
         for chunk in res.iter_content(chunk_size=1024):
             if chunk:
@@ -44,6 +96,10 @@ def download(url, dir, logger=default_logger):
     filepath = os.path.join(dir, filename)
 
     res = requests.get(url)
+
+    if res.status_code >= 300:
+        raise HTTPResponseException(res, url)
+
     content = res.text
     soup = parse(content)
     logger.info(f'File {filename} parsed')
