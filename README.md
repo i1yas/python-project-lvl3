@@ -13,3 +13,6 @@ download --output DIR https://yourdomain.com/some/path
 
 ## Usage
 [![asciicast](https://asciinema.org/a/6wcvtZsWXhX4olUh2ScUPLS6c.svg)](https://asciinema.org/a/6wcvtZsWXhX4olUh2ScUPLS6c)
+
+Logging and error reporting
+[![asciicast](https://asciinema.org/a/noe7MyuJaqcMLynyQtjeKFTXQ.svg)](https://asciinema.org/a/noe7MyuJaqcMLynyQtjeKFTXQ)
