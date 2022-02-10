@@ -22,7 +22,6 @@ def main():
             dir=args.OUTPUT or os.getcwd(),
             logger=logger
         )
-        print()
         print(filepath)
         sys.exit(0)
     except HTTPResponseException as e:

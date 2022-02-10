@@ -1,8 +1,10 @@
 import os
+from re import I
 import sys
 from urllib.parse import urlparse, urljoin
 import requests
 import logging
+from progress.bar import Bar
 from bs4 import BeautifulSoup
 
 
@@ -90,6 +92,29 @@ def save_binary(url, path):
                 f.write(chunk)
 
 
+def get_resource_tags(soup):
+    found_tags = []
+
+    found_tags.extend(
+        ('src', img) for img in soup.find_all('img')
+    )
+    found_tags.extend(
+        ('href', link) for link in soup.find_all('link')
+        if link.get('href')
+    )
+    found_tags.extend(
+        ('src', script) for script in soup.find_all('script')
+        if script.get('src')
+    )
+
+    def keep_tag(item):
+        key, tag = item
+        path = tag[key]
+        return is_local_path(path)
+
+    return list(filter(keep_tag, found_tags))
+
+
 def download(url, dir, logger=default_logger):
     basename = url_to_filename(url)
     base_url, _ = os.path.split(url)
@@ -108,42 +133,29 @@ def download(url, dir, logger=default_logger):
     files_dirname = f'{basename}_files'
     files_dirpath = os.path.join(dir, files_dirname)
 
-    elements_to_load = []
+    tags_to_process = get_resource_tags(soup)
 
-    elements_to_load.extend(
-        ('src', img) for img in soup.find_all('img')
-    )
-    elements_to_load.extend(
-        ('href', link) for link in soup.find_all('link')
-        if link.get('href')
-    )
-    elements_to_load.extend(
-        ('src', script) for script in soup.find_all('script')
-        if script.get('src')
-    )
-
-    if len(elements_to_load) > 0:
+    if len(tags_to_process) > 0:
         os.mkdir(files_dirpath)
     else:
         logger.warning(f'Found no resources to download in {url}')
 
-    for (key, element) in elements_to_load:
-        old_path = element[key]
+    progress_bar = Bar('Loading resources', max=len(tags_to_process))
+    for (key, tag) in tags_to_process:
+        old_path = tag[key]
 
-        if not is_local_path(old_path):
-            continue
-
-        element_url = urlparse(old_path)
-        _, filename = os.path.split(element_url.path)
+        tag_url = urlparse(old_path)
+        _, filename = os.path.split(tag_url.path)
         new_path = os.path.join(files_dirname, filename)
-        element[key] = new_path
+        tag[key] = new_path
 
         local_path = os.path.join(dir, new_path)
         save_binary(
             url=urljoin(base_url, old_path),
             path=local_path
         )
-        logger.info(f'Loaded resource {old_path}')
+        progress_bar.next()
+    progress_bar.finish()
 
     with open(filepath, 'w') as f:
         f.write(soup.prettify())
