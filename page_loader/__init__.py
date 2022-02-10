@@ -8,9 +8,9 @@ from bs4 import BeautifulSoup
 
 def get_default_logger():
     Logger = logging.getLoggerClass()
-    logger = Logger('default_logger')
+    logger = Logger('page loader')
 
-    logger.setLevel('DEBUG')
+    logger.setLevel('INFO')
 
     handler = logging.StreamHandler(sys.stderr)
     log_format = '%(name)s - %(levelname)s - %(message)s'
@@ -103,7 +103,7 @@ def download(url, dir, logger=default_logger):
 
     content = res.text
     soup = parse(content)
-    logger.info(f'File {filename} parsed')
+    logger.info('HTML file parsed')
 
     files_dirname = f'{basename}_files'
     files_dirpath = os.path.join(dir, files_dirname)
