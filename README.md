@@ -15,4 +15,4 @@ download --output DIR https://yourdomain.com/some/path
 [![asciicast](https://asciinema.org/a/6wcvtZsWXhX4olUh2ScUPLS6c.svg)](https://asciinema.org/a/6wcvtZsWXhX4olUh2ScUPLS6c)
 
 Logging and error reporting
-[![asciicast](https://asciinema.org/a/noe7MyuJaqcMLynyQtjeKFTXQ.svg)](https://asciinema.org/a/noe7MyuJaqcMLynyQtjeKFTXQ)
+[![asciicast](https://asciinema.org/a/ZJifIEdqpo8blWxZUXO79LsYV.svg)](https://asciinema.org/a/ZJifIEdqpo8blWxZUXO79LsYV)
