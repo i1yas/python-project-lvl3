@@ -1,5 +1,4 @@
 import os
-from re import I
 import sys
 from urllib.parse import urlparse, urljoin
 import requests
