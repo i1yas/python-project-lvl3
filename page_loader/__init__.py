@@ -75,7 +75,7 @@ def url_to_filename(url):
     return filename
 
 
-def is_local_path(path):
+def is_local_path(path, url):
     return path.startswith('/')
 
 
@@ -106,12 +106,7 @@ def get_resource_tags(soup):
         if script.get('src')
     )
 
-    def keep_tag(item):
-        key, tag = item
-        path = tag[key]
-        return is_local_path(path)
-
-    return list(filter(keep_tag, found_tags))
+    return found_tags
 
 
 def download(url, dir, logger=default_logger):
@@ -132,7 +127,18 @@ def download(url, dir, logger=default_logger):
     files_dirname = f'{basename}_files'
     files_dirpath = os.path.join(dir, files_dirname)
 
-    tags_to_process = get_resource_tags(soup)
+    tags = get_resource_tags(soup)
+
+    def keep_tag(item):
+        key, tag = item
+        path = tag[key]
+        if path.startswith('/'):
+            return True
+        parsed_main_url = urlparse(url)
+        parsed_tag_url = urlparse(path)
+        return parsed_main_url.hostname == parsed_tag_url.hostname
+
+    tags_to_process = list(filter(keep_tag, tags))
 
     if len(tags_to_process) > 0:
         os.mkdir(files_dirpath)
