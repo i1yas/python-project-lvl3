@@ -15,3 +15,6 @@ lint:
 
 test:
 	poetry run pytest
+
+test-coverage:
+	poetry run pytest --cov=page_loader
