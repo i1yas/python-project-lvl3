@@ -18,6 +18,10 @@ def main():
 
     logger = get_default_logger()
 
+    if not args.url:
+        parser.print_help()
+        sys.exit(0)
+
     try:
         filepath = download(
             args.url,
