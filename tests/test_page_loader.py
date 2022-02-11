@@ -22,6 +22,7 @@ def setup(requests_mock):
     with open(file_path) as original_file:
         original = original_file.read()
         requests_mock.get(url, text=original)
+        requests_mock.get('https://test.com/about', text=original)
 
     files_to_mock = [
         ('picture.jpg', 'jpg picture'),
@@ -53,28 +54,17 @@ def test_page_loaded():
             assert expected == actual
 
 
-def test_local_paths_changed():
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        result_path = download(url, tmpdirname)
-
-        with open(result_path) as result_file:
-            actual = result_file.read()
-            assert '"test-com-document_files/picture.jpg"' in actual
-            assert '"test-com-document_files/picture.png"' in actual
-            assert '"test-com-document_files/script.js"' in actual
-            assert '"test-com-document_files/style.css"' in actual
-
-
 def test_files_loaded():
     with tempfile.TemporaryDirectory() as tmpdirname:
         download(url, tmpdirname)
 
         dirpath = os.path.join(tmpdirname, files_dirname)
         assert set([
-            "picture.jpg",
-            "picture.png",
-            "script.js",
-            "style.css",
+            "test-com-files-picture.jpg",
+            "test-com-files-picture.png",
+            "test-com-files-script.js",
+            "test-com-files-style.css",
+            "test-com-about.html",
         ]) == set(os.listdir(dirpath))
 
 
@@ -114,6 +104,6 @@ def test_bad_http_request(requests_mock):
         resourse_path = os.path.join(
             tmpdirname,
             'test-com-document_files',
-            'picture.jpg'
+            'test-com-files-picture.jpg'
         )
         assert f'Not found {resourse_path}' == str(e.value)

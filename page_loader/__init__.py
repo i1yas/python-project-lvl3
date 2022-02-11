@@ -1,6 +1,6 @@
 import os
 import sys
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 import requests
 import logging
 from progress.bar import Bar
@@ -111,7 +111,6 @@ def get_resource_tags(soup):
 
 def download(url, dir, logger=default_logger):
     basename = url_to_filename(url)
-    base_url, _ = os.path.split(url)
     filename = basename + '.html'
     filepath = os.path.join(dir, filename)
 
@@ -149,17 +148,38 @@ def download(url, dir, logger=default_logger):
     for (key, tag) in tags_to_process:
         old_path = tag[key]
 
-        tag_url = urlparse(old_path)
-        _, filename = os.path.split(tag_url.path)
-        new_path = os.path.join(files_dirname, filename)
-        tag[key] = new_path
+        tag_url_parsed = urlparse(old_path)
+        base_url_parsed = urlparse(url)
+        tag_url_parsed = tag_url_parsed._replace(
+            scheme=base_url_parsed.scheme,
+            netloc=base_url_parsed.netloc
+        )
 
-        local_path = os.path.join(dir, new_path)
+        tag_url_wo_ext, ext = os.path.splitext(
+            tag_url_parsed.geturl()
+        )
+
+        new_full_filename = url_to_filename(
+            tag_url_wo_ext.replace(tag_url_parsed.scheme + '://', '')
+        ) + (ext or '.html')
+
+        full_path = os.path.join(
+            files_dirpath,
+            new_full_filename
+        )
+        local_path = os.path.join(
+            files_dirname,
+            new_full_filename
+        )
+
+        tag[key] = local_path
+
         save_binary(
-            url=urljoin(base_url, old_path),
-            path=local_path
+            url=tag_url_parsed.geturl(),
+            path=full_path
         )
         progress_bar.next()
+
     progress_bar.finish()
 
     with open(filepath, 'w') as f:
