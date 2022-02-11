@@ -11,16 +11,12 @@ def main():
     )
 
     parser.add_argument('url', type=str)
-    parser.add_argument('--output', dest='OUTPUT', type=str,
+    parser.add_argument('-o', '--output', dest='OUTPUT', type=str,
                         help='location for downloaded file')
 
     args = parser.parse_args()
 
     logger = get_default_logger()
-
-    if not args.url:
-        parser.print_help()
-        sys.exit(0)
 
     try:
         filepath = download(

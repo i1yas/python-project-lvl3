@@ -2,7 +2,7 @@ install:
 	poetry install
 
 package-install: build
-	pip install --user dist/*.whl
+	pip install --user dist/*.whl --force-reinstall
 	
 build:
 	poetry build
