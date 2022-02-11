@@ -9,7 +9,7 @@ packages = [
 
 [tool.poetry.scripts]
 download = "page_loader.scripts.download:main"
-page_loader = "page_loader.scripts.download:main"
+page-loader = "page_loader.scripts.download:main"
 
 [tool.poetry.dependencies]
 python = "^3.9"
